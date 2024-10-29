@@ -1,0 +1,19 @@
+body {
+  margin: 0;
+  height: 100dvh;
+  font-family: sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+table {
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+th,
+td {
+  border: 1px solid var(--table-border, black);
+}

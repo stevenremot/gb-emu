@@ -1,0 +1,14 @@
+gbemu-devtools-registers {
+  .entry {
+    font-weight: 600;
+  }
+
+  .value {
+    font-weight: 500;
+  }
+
+  th,
+  td {
+    padding: 0.2rem;
+  }
+}
