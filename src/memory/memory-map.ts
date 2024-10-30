@@ -19,8 +19,18 @@ export class MemoryMap {
     return this.#tmpMemory[address];
   }
 
+  read16bitsAt(address: number) {
+    const parts = this.readRange(address, 2);
+    return parts[0] | (parts[1] << 8);
+  }
+
   writeAt(address: number, value: number) {
     this.#tmpMemory[address] = value;
+    return this;
+  }
+
+  write16bitsAt(address: number, value: number) {
+    this.writeRange(address, new Uint8Array([value, value >> 8]));
     return this;
   }
 
