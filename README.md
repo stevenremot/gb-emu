@@ -2,6 +2,22 @@
 
 This is a game boy emulator written for self-educational purposes.
 
+## Next immediate steps
+
+## TODO
+
+- [ ] Memory map
+- [X] CPU and execution loop (not all instructions, just enough to ensure the main loop works)
+- [X] Create some debugging UI
+- [ ] Boot some test roms and make them run all the way without
+      technical errors
+- [ ] Cartridge reading
+- [ ] Screen
+- [ ] Input
+- [ ] Sound
+- [ ] Save / load
+- [ ] Game boy color
+
 ## Suggested TODO by LLM
 
 Here's a suggested order for implementing the different components of a Game Boy/Game Boy Color emulator to have a smooth and enjoyable development experience:
@@ -25,16 +41,3 @@ Here's a suggested order for implementing the different components of a Game Boy
 9. **Advanced Features**: Implement any advanced features, such as support for Game Boy Color-specific functionality, or additional hardware features like the Super Game Boy.
 
 By following this order, you'll be able to build up the core functionality of the emulator step-by-step, ensuring a stable and manageable development process. This approach allows you to test and validate each component before moving on to the next, which can help prevent issues and make the overall development experience more enjoyable.
-
-## TODO
-
-- [ ] Memory map
-- [ ] CPU and execution loop (not all instructions, just enough to ensure the main loop works)
-- [ ] Create some debugging UI
-- [ ] Cartridge reading
-- [ ] Boot some test roms
-- [ ] Screen
-- [ ] Input
-- [ ] Sound
-- [ ] Save / load
-- [ ] Game boy color

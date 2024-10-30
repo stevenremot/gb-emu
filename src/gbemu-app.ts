@@ -3,16 +3,19 @@ import { MemoryMap } from "./memory/memory-map";
 
 import "./devtools/gbemu-devtools";
 import "./gbemu-loader-static";
+import { ProcessorLoop } from "./cpu/processor-loop";
 
 export class GbemuApp extends HTMLElement {
-  memoryMap: MemoryMap;
-  processor: Processor;
+  readonly memoryMap: MemoryMap;
+  readonly processor: Processor;
+  readonly processorLoop: ProcessorLoop;
 
   constructor() {
     super();
 
     this.memoryMap = new MemoryMap();
     this.processor = new Processor(this.memoryMap);
+    this.processorLoop = new ProcessorLoop(this.processor);
 
     this.innerHTML = /* HTML */ `
       <gbemu-loader-static

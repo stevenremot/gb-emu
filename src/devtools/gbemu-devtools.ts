@@ -17,6 +17,7 @@ export class GbemuDevtools extends HTMLElement {
 
     this.innerHTML = /* HTML */ `
       <div class="actions">
+        <button type="button" id="play-pause">⏸️</button>
         <button type="button" id="run-one">Run one</button>
       </div>
       <gbemu-devtools-registers></gbemu-devtools-registers>
@@ -25,12 +26,37 @@ export class GbemuDevtools extends HTMLElement {
 
   connectedCallback() {
     this.querySelector("#run-one")?.addEventListener("click", () => {
-      const result = this.app.processor.runOneInstruction();
-      this.logInstruction(result);
+      this.app.processor.runOneInstruction();
       this.pause();
     });
 
-    this.pause();
+    const playPauseButton = assertNotNull(this.querySelector("#play-pause"));
+    playPauseButton.addEventListener("click", () => {
+      if (this.app.processorLoop.isRunning) {
+        this.app.processorLoop.stop();
+      } else {
+        this.app.processorLoop.start();
+      }
+    });
+
+    this.app.processorLoop.addObserver({
+      onStarted() {
+        playPauseButton.textContent = "⏸️";
+      },
+      onStopped() {
+        playPauseButton.textContent = "▶️";
+      },
+    });
+
+    this.app.processor.addObserver({
+      afterInstruction: (result) => {
+        this.logInstruction(result);
+
+        if (!result.instruction?.name) {
+          this.pause();
+        }
+      },
+    });
   }
 
   logInstruction(result: InstructionResult) {
@@ -43,6 +69,7 @@ export class GbemuDevtools extends HTMLElement {
   }
 
   pause() {
+    this.app.processorLoop.stop();
     document.body.dispatchEvent(new CustomEvent("gbemu:execution-paused"));
   }
 

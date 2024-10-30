@@ -19,6 +19,7 @@ export class GbemuLoaderStatic extends HTMLElement {
 
     const buffer = await response.arrayBuffer();
     this.app.memoryMap.loadProgram(new Uint8Array(buffer));
+    this.app.processorLoop.start();
   }
 
   get app() {

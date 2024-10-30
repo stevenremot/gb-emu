@@ -6,7 +6,8 @@ gbemu-devtools {
   align-items: stretch;
 
   height: 100%;
-  background-color: #c0c0c0;
+  color: #222244;
+  background-color: #eeeeee;
 
   .actions {
     display: flex;
