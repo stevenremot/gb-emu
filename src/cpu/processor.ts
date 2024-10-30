@@ -1,6 +1,5 @@
 import { MemoryMap } from "../memory/memory-map";
 import { executeInstruction } from "./instructions";
-import { InstructionEffectResult } from "./instructions/instruction-effect";
 import { Registers } from "./registers";
 
 export class Processor {
@@ -12,14 +11,14 @@ export class Processor {
     this.#memoryMap = memoryMap;
   }
 
-  runOneInstruction(callback: (result: InstructionEffectResult) => void) {
+  runOneInstruction() {
     const opcode = this.#memoryMap.readAt(this.#registers.PC);
     this.#registers.PC += 1;
-    const effect = executeInstruction(opcode);
-    effect.run(
-      { registers: this.#registers, memoryMap: this.#memoryMap },
-      (result) => callback({ ...result, instruction: effect.instruction }),
-    );
+    return executeInstruction({
+      opcode,
+      registers: this.#registers,
+      memoryMap: this.#memoryMap,
+    });
   }
 
   get registers() {

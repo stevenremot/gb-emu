@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { makeInstructionTestInstance } from "./test-utils";
 
 describe("cpu/instructions - Block 3", () => {
-  it("Should update PC with immediate value on 0xc3", async () => {
-    const { processor, runOneInstruction } = makeInstructionTestInstance(
+  it("Should update PC with immediate value on 0xc3", () => {
+    const { processor } = makeInstructionTestInstance(
       new Uint8Array([0xc3, 0xfc, 0x01]),
     );
-    const result = await runOneInstruction();
+    const result = processor.runOneInstruction();
 
     expect(result).toEqual({
       executionTime: 4,

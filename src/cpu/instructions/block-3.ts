@@ -1,19 +1,16 @@
 import { logger } from "../../utils/logger";
 import { makeInstructionHandlerFromList } from "./handlers";
-import { syncInstructionEffect } from "./instruction-effect";
 import { InstructionHandler } from "./types";
 
-const Jump = {
+const Jump: InstructionHandler = {
   opcode: 0xc3,
   mask: 0xff,
   name: "Jump",
 
-  execute() {
-    return syncInstructionEffect(({ registers, memoryMap }) => {
-      const bytes = memoryMap.readRange(registers.PC, 2);
-      registers.PC = bytes[0] + (bytes[1] << 8);
-      return { executionTime: 4 };
-    });
+  execute({ registers, memoryMap }) {
+    const bytes = memoryMap.readRange(registers.PC, 2);
+    registers.PC = bytes[0] + (bytes[1] << 8);
+    return { executionTime: 4 };
   },
 };
 

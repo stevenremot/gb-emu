@@ -1,6 +1,5 @@
 import { logger } from "../../utils/logger";
 import { makeInstructionHandlerFromList } from "./handlers";
-import { syncInstructionEffect } from "./instruction-effect";
 import { InstructionHandler } from "./types";
 
 const Noop = {
@@ -9,9 +8,9 @@ const Noop = {
   name: "Noop",
 
   execute() {
-    return syncInstructionEffect(() => ({
+    return {
       executionTime: 1,
-    }));
+    };
   },
 };
 

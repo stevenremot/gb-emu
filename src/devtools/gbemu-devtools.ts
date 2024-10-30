@@ -1,4 +1,4 @@
-import { InstructionEffectResult } from "../cpu/instructions/instruction-effect";
+import { InstructionResult } from "../cpu/instructions/types";
 import { Processor } from "../cpu/processor";
 import { formatOpcode } from "../cpu/utils/opcode";
 import { GbemuApp } from "../gbemu-app";
@@ -24,17 +24,16 @@ export class GbemuDevtools extends HTMLElement {
   }
 
   connectedCallback() {
-    this.querySelector("#run-one")?.addEventListener("click", () =>
-      this.app.processor.runOneInstruction((result) => {
-        this.logInstruction(result);
-        this.pause();
-      }),
-    );
+    this.querySelector("#run-one")?.addEventListener("click", () => {
+      const result = this.app.processor.runOneInstruction();
+      this.logInstruction(result);
+      this.pause();
+    });
 
     this.pause();
   }
 
-  logInstruction(result: InstructionEffectResult) {
+  logInstruction(result: InstructionResult) {
     this.#logger.info(
       result.instruction
         ? `${result.instruction.name} (${formatOpcode(result.instruction.opcode)}) -`

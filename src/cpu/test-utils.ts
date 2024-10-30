@@ -9,10 +9,5 @@ export function makeInstructionTestInstance(program: Uint8Array) {
   return {
     processor,
     memoryMap,
-    runOneInstruction() {
-      return new Promise((resolve) => {
-        processor.runOneInstruction(resolve);
-      });
-    },
   };
 }
