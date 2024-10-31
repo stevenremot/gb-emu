@@ -5,6 +5,8 @@
  * memory banks.
  */
 export class MemoryMap {
+  // Called tmpMemory because the implementation is too simple and
+  // does not take in account bank switching and stuffs. It will be rewritten later.
   #tmpMemory: Uint8Array;
 
   constructor() {

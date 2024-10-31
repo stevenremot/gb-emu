@@ -1,4 +1,5 @@
 import { logger } from "../../utils/logger";
+import { FlagNames } from "../registers";
 import { makeInstructionHandlerFromList } from "./handlers";
 import { InstructionHandler } from "./types";
 
@@ -28,6 +29,22 @@ const LoadFromSP: InstructionHandler = {
   },
 };
 
+const LoadNToRRR: InstructionHandler = {
+  opcode: 0b00000110,
+  mask: 0b11000111,
+  name: "LoadNToRRR",
+
+  execute({ opcode, registers, memoryMap }) {
+    const value = memoryMap.readAt(registers.PC);
+    registers.PC += 1;
+
+    const register = (opcode & 0b00111000) >> 3;
+    registers.set8Bits(register, value);
+
+    return { executionTime: 2 };
+  },
+};
+
 const LoadNNToRR: InstructionHandler = {
   opcode: 0b00000001,
   mask: 0b11001111,
@@ -48,7 +65,50 @@ const LoadNNToRR: InstructionHandler = {
   },
 };
 
-const instructions: InstructionHandler[] = [Noop, LoadNNToRR, LoadFromSP];
+const JumpRelCond: InstructionHandler = {
+  opcode: 0b00100000,
+  mask: 0b11100111,
+  name: "JumpRelCond",
+
+  execute({ opcode, registers, memoryMap }) {
+    const condition = (opcode & 0b00011000) >> 3;
+
+    let isConditionMet = false;
+
+    switch (condition) {
+      case 0:
+        isConditionMet = registers.getFlag(FlagNames.Z) === 0;
+        break;
+      case 1:
+        isConditionMet = registers.getFlag(FlagNames.Z) === 1;
+        break;
+      case 2:
+        isConditionMet = registers.getFlag(FlagNames.C) === 0;
+        break;
+      case 3:
+        isConditionMet = registers.getFlag(FlagNames.C) === 1;
+        break;
+    }
+
+    if (isConditionMet) {
+      const offset = memoryMap.readAt(registers.PC);
+      registers.PC += 1 + offset;
+      return { executionTime: 3 };
+    }
+
+    registers.PC += 1;
+
+    return { executionTime: 2 };
+  },
+};
+
+const instructions: InstructionHandler[] = [
+  Noop,
+  LoadNToRRR,
+  LoadNNToRR,
+  LoadFromSP,
+  JumpRelCond,
+];
 
 const log = logger("InstructionBlock0");
 

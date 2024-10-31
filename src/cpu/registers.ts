@@ -5,6 +5,7 @@ export const RegisterNames = {
   E: 3,
   H: 4,
   L: 5,
+  F: 6,
   A: 7,
 
   BC: 0,
@@ -14,14 +15,26 @@ export const RegisterNames = {
   AF: 3,
 } as const;
 
+export const FlagNames = {
+  Z: 7,
+  N: 6,
+  H: 5,
+  C: 4,
+} as const;
+
 export class Registers {
   PC: number;
   SP: number;
+
+  // Not really a register, but kept here for simplicity
+  IME: boolean;
+
   #dataRegisters: Uint8Array;
 
   constructor() {
     this.PC = 0x100;
     this.SP = 0xfffe;
+    this.IME = false;
     this.#dataRegisters = new Uint8Array(8);
   }
 
@@ -45,5 +58,17 @@ export class Registers {
     this.#dataRegisters[register * 2] = value >> 8;
     this.#dataRegisters[register * 2 + 1] = value;
     return this;
+  }
+
+  getFlag(flag: number) {
+    const F = this.get8Bits(RegisterNames.F);
+    return (F & (0b10000000 >> flag)) >> (7 - flag);
+  }
+
+  setFlag(flag: number, value: 0 | 1) {
+    const F = this.get8Bits(RegisterNames.F);
+    const mask = (0b10000000 >> flag) ^ 0xff;
+    const offsetValue = value << (7 - flag);
+    return this.set8Bits(RegisterNames.F, (F & mask) | offsetValue);
   }
 }
