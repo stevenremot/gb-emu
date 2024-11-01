@@ -12,7 +12,7 @@ export type ProcessorLoopObserver = {
 export class ProcessorLoop {
   private currentDelay = 0;
   private lastTimestamp = -1;
-  private #isRunning = false;
+  #isRunning = false;
   private readonly observers: ProcessorLoopObserver[] = [];
 
   constructor(private readonly processor: Processor) {}

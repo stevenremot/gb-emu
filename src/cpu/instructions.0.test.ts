@@ -132,4 +132,27 @@ describe("cpu/instructions - Block 0", () => {
     expect(processor.registers.SP).toEqual(0x10ad);
     expect(processor.registers.PC).toEqual(0x103);
   });
+
+  it("Should complement the carry flag on 0b00111111", () => {
+    const { processor } = makeInstructionTestInstance(
+      new Uint8Array([0b00111111]),
+    );
+
+    processor.registers.C = 0;
+    processor.registers.N = 1;
+    processor.registers.H = 1;
+
+    const result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b00111111,
+        name: "Ccf",
+      },
+      executionTime: 1,
+    });
+    expect(processor.registers.C).toBe(1);
+    expect(processor.registers.N).toBe(0);
+    expect(processor.registers.H).toBe(0);
+  });
 });

@@ -102,12 +102,26 @@ const JumpRelCond: InstructionHandler = {
   },
 };
 
+const Ccf: InstructionHandler = {
+  opcode: 0b00111111,
+  mask: 0xff,
+  name: "Ccf",
+
+  execute({ registers }) {
+    registers.C = registers.C ? 0 : 1;
+    registers.N = 0;
+    registers.H = 0;
+    return { executionTime: 1 };
+  },
+};
+
 const instructions: InstructionHandler[] = [
   Noop,
   LoadNToRRR,
   LoadNNToRR,
   LoadFromSP,
   JumpRelCond,
+  Ccf,
 ];
 
 const log = logger("InstructionBlock0");

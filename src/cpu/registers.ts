@@ -62,7 +62,7 @@ export class Registers {
 
   getFlag(flag: number) {
     const F = this.get8Bits(RegisterNames.F);
-    return (F & (0b10000000 >> flag)) >> (7 - flag);
+    return ((F & (0b10000000 >> flag)) >> (7 - flag)) as 0 | 1;
   }
 
   setFlag(flag: number, value: 0 | 1) {
@@ -70,5 +70,53 @@ export class Registers {
     const mask = (0b10000000 >> flag) ^ 0xff;
     const offsetValue = value << (7 - flag);
     return this.set8Bits(RegisterNames.F, (F & mask) | offsetValue);
+  }
+
+  get A() {
+    return this.get8Bits(RegisterNames.A);
+  }
+
+  set A(value: number) {
+    this.set8Bits(RegisterNames.A, value);
+  }
+
+  get HL() {
+    return this.get16Bits(RegisterNames.HL);
+  }
+
+  set HL(value: number) {
+    this.set16Bits(RegisterNames.HL, value);
+  }
+
+  get Z() {
+    return this.getFlag(FlagNames.Z);
+  }
+
+  set Z(flag: 0 | 1) {
+    this.setFlag(FlagNames.Z, flag);
+  }
+
+  get N() {
+    return this.getFlag(FlagNames.N);
+  }
+
+  set N(flag: 0 | 1) {
+    this.setFlag(FlagNames.N, flag);
+  }
+
+  get H() {
+    return this.getFlag(FlagNames.H);
+  }
+
+  set H(flag: 0 | 1) {
+    this.setFlag(FlagNames.H, flag);
+  }
+
+  get C() {
+    return this.getFlag(FlagNames.C);
+  }
+
+  set C(flag: 0 | 1) {
+    this.setFlag(FlagNames.C, flag);
   }
 }

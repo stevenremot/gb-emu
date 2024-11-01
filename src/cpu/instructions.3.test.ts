@@ -32,6 +32,91 @@ describe("cpu/instructions - Block 3", () => {
     expect(memoryMap.read16bitsAt(processor.registers.SP)).toEqual(0x103);
   });
 
+  it("Should return from function on 0b11001001", () => {
+    const { processor, memoryMap } = makeInstructionTestInstance(
+      new Uint8Array([0b11001001]),
+    );
+
+    processor.registers.SP = 0xffd0;
+    memoryMap.write16bitsAt(processor.registers.SP, 0x1000);
+
+    const result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b11001001,
+        name: "Ret",
+      },
+      executionTime: 4,
+    });
+    expect(processor.registers.PC).toBe(0x1000);
+    expect(processor.registers.SP).toBe(0xffd2);
+  });
+
+  it.each([
+    { CC: 0, Z: 0, C: 0 },
+    { CC: 1, Z: 1, C: 0 },
+    { CC: 2, Z: 1, C: 0 },
+    { CC: 3, Z: 1, C: 1 },
+  ] as const)(
+    "Should return from function when condition is met on 0b110CC000 ($CC, $Z, $C)",
+    ({ CC, Z, C }) => {
+      const opcode = 0b11000000 + (CC << 3);
+      const { processor, memoryMap } = makeInstructionTestInstance(
+        new Uint8Array([opcode]),
+      );
+
+      processor.registers.Z = Z;
+      processor.registers.C = C;
+      processor.registers.SP = 0xfff0;
+      memoryMap.write16bitsAt(processor.registers.SP, 0x1000);
+
+      const result = processor.runOneInstruction();
+
+      expect(result).toEqual({
+        instruction: {
+          opcode,
+          name: "RetCond",
+        },
+        executionTime: 5,
+      });
+      expect(processor.registers.PC).toBe(0x1000);
+      expect(processor.registers.SP).toBe(0xfff2);
+    },
+  );
+
+  it.each([
+    { CC: 0, Z: 1, C: 0 },
+    { CC: 1, Z: 0, C: 0 },
+    { CC: 2, Z: 0, C: 1 },
+    { CC: 3, Z: 0, C: 0 },
+  ] as const)(
+    "Should not return from function when condition is not met on 0b110CC000 ($CC, $Z, $C)",
+    ({ CC, Z, C }) => {
+      const opcode = 0b11000000 + (CC << 3);
+      const { processor, memoryMap } = makeInstructionTestInstance(
+        new Uint8Array([opcode]),
+      );
+
+      processor.registers.Z = Z;
+      processor.registers.C = C;
+      processor.registers.SP = 0xfff0;
+      memoryMap.write16bitsAt(processor.registers.SP, 0x1000);
+
+      const result = processor.runOneInstruction();
+
+      expect(result).toEqual({
+        instruction: {
+          opcode,
+          name: "RetCond",
+        },
+        executionTime: 2,
+      });
+      expect(processor.registers.PC).toBe(0x101);
+      expect(processor.registers.SP).toBe(0xfff0);
+    },
+  );
+
   it("Should push the value of register into the stack on 0b11RR0101", () => {
     const { processor, memoryMap } = makeInstructionTestInstance(
       new Uint8Array([0b11100101]),
@@ -79,11 +164,31 @@ describe("cpu/instructions - Block 3", () => {
     const result = processor.runOneInstruction();
 
     expect(result).toEqual({
-      instruction: { opcode: 0b11100000, name: "SaveAcc" },
+      instruction: { opcode: 0b11100000, name: "SaveRelAcc" },
       executionTime: 3,
     });
     expect(processor.registers.PC).toEqual(0x102);
     expect(memoryMap.readAt(0xffe0)).toBe(0x32);
+  });
+
+  it("Should save the value at the address 0xff00 + n into A on 0b11110000", () => {
+    const { processor, memoryMap } = makeInstructionTestInstance(
+      new Uint8Array([0b11110000, 0xe1]),
+    );
+
+    memoryMap.writeAt(0xffe1, 0xab);
+
+    const result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b11110000,
+        name: "LoadRelAcc",
+      },
+      executionTime: 3,
+    });
+    expect(processor.registers.PC).toBe(0x102);
+    expect(processor.registers.get8Bits(RegisterNames.A)).toBe(0xab);
   });
 
   it("Should load to A value at the address NN on 0b11111010", () => {
@@ -137,6 +242,29 @@ describe("cpu/instructions - Block 3", () => {
       expect(processor.registers.PC).toEqual(0x102);
     },
   );
+
+  it("Should subtract N to A on 0b11010110", () => {
+    const { processor } = makeInstructionTestInstance(
+      new Uint8Array([0b11010110, 0x25]),
+    );
+    processor.registers.A = 0xf1;
+
+    const result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b11010110,
+        name: "SubN",
+      },
+      executionTime: 2,
+    });
+    expect(processor.registers.PC).toBe(0x102);
+    expect(processor.registers.A).toBe(0xcc);
+    expect(processor.registers.Z).toBe(0);
+    expect(processor.registers.N).toBe(1);
+    expect(processor.registers.H).toBe(1);
+    expect(processor.registers.C).toBe(0);
+  });
 
   it("Should disable IME register on Ob11110011", () => {
     const { processor } = makeInstructionTestInstance(

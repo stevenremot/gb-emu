@@ -2,6 +2,20 @@ import { logger } from "../../utils/logger";
 import { makeInstructionHandlerFromList } from "./handlers";
 import { InstructionHandler } from "./types";
 
+const BitBHl: InstructionHandler = {
+  opcode: 0b01000110,
+  mask: 0b11000111,
+  name: "BitBHl",
+
+  execute({ opcode, registers, memoryMap }) {
+    const bit = (opcode & 0b00111000) >> 3;
+    const value = memoryMap.readAt(registers.HL);
+    const mask = 1 << bit;
+    registers.Z = value & mask ? 0 : 1;
+    return { executionTime: 3 };
+  },
+};
+
 const Set: InstructionHandler = {
   opcode: 0b11000000,
   mask: 0b11000000,
@@ -19,7 +33,7 @@ const Set: InstructionHandler = {
   },
 };
 
-const instructions: InstructionHandler[] = [Set];
+const instructions: InstructionHandler[] = [BitBHl, Set];
 
 const log = logger("InstructionBlockCB");
 

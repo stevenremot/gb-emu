@@ -1,4 +1,5 @@
 import { logger } from "../../utils/logger";
+import { subtractUint8 } from "../operations";
 import { FlagNames, RegisterNames } from "../registers";
 import { makeInstructionHandlerFromList } from "./handlers";
 import { InstructionHandler } from "./types";
@@ -12,6 +13,51 @@ const Jump: InstructionHandler = {
     const bytes = memoryMap.readRange(registers.PC, 2);
     registers.PC = bytes[0] + (bytes[1] << 8);
     return { executionTime: 4 };
+  },
+};
+
+const Ret: InstructionHandler = {
+  opcode: 0b11001001,
+  mask: 0xff,
+  name: "Ret",
+
+  execute({ registers, memoryMap }) {
+    registers.PC = memoryMap.read16bitsAt(registers.SP);
+    registers.SP += 2;
+    return { executionTime: 4 };
+  },
+};
+
+const RetCond: InstructionHandler = {
+  opcode: 0b11000000,
+  mask: 0b11100111,
+  name: "RetCond",
+
+  execute({ opcode, registers, memoryMap }) {
+    const cc = (opcode & 0b00011000) >> 3;
+    let condition = false;
+    switch (cc) {
+      case 0:
+        condition = registers.Z === 0;
+        break;
+      case 1:
+        condition = registers.Z === 1;
+        break;
+      case 2:
+        condition = registers.C === 0;
+        break;
+      case 3:
+        condition = registers.C === 1;
+        break;
+    }
+
+    if (condition) {
+      registers.PC = memoryMap.read16bitsAt(registers.SP);
+      registers.SP += 2;
+      return { executionTime: 5 };
+    }
+
+    return { executionTime: 2 };
   },
 };
 
@@ -59,15 +105,30 @@ const PopRR: InstructionHandler = {
   },
 };
 
-const SaveAcc: InstructionHandler = {
+const SaveRelAcc: InstructionHandler = {
   opcode: 0b11100000,
   mask: 0xff,
-  name: "SaveAcc",
+  name: "SaveRelAcc",
 
   execute({ registers, memoryMap }) {
     const address = 0xff00 + memoryMap.readAt(registers.PC);
     registers.PC += 1;
     memoryMap.writeAt(address, registers.get8Bits(RegisterNames.A));
+    return { executionTime: 3 };
+  },
+};
+
+const LoadRelAcc: InstructionHandler = {
+  opcode: 0b11110000,
+  mask: 0xff,
+  name: "LoadRelAcc",
+
+  execute({ registers, memoryMap }) {
+    const addressOffset = memoryMap.readAt(registers.PC);
+    registers.PC += 1;
+    const value = memoryMap.readAt(0xff00 + addressOffset);
+    registers.set8Bits(RegisterNames.A, value);
+
     return { executionTime: 3 };
   },
 };
@@ -95,10 +156,31 @@ const CmpN: InstructionHandler = {
     const value = memoryMap.readAt(registers.PC);
     const A = registers.get8Bits(RegisterNames.A);
     registers.PC += 1;
-    registers.setFlag(FlagNames.Z, A === value ? 1 : 0);
+    const { result, carry, halfCarry } = subtractUint8(A, value);
+    registers.setFlag(FlagNames.Z, result === 0 ? 1 : 0);
     registers.setFlag(FlagNames.N, 1);
-    registers.setFlag(FlagNames.C, value > A ? 1 : 0);
-    registers.setFlag(FlagNames.H, (value & 0xf) > (A & 0xf) ? 1 : 0);
+    registers.setFlag(FlagNames.C, carry);
+    registers.setFlag(FlagNames.H, halfCarry);
+    return { executionTime: 2 };
+  },
+};
+
+const SubN: InstructionHandler = {
+  opcode: 0b11010110,
+  mask: 0xff,
+  name: "SubN",
+
+  execute({ registers, memoryMap }) {
+    const value = memoryMap.readAt(registers.PC);
+    registers.PC += 1;
+
+    const { result, carry, halfCarry } = subtractUint8(registers.A, value);
+    registers.A = result;
+    registers.Z = result === 0 ? 1 : 0;
+    registers.N = 1;
+    registers.H = halfCarry;
+    registers.C = carry;
+
     return { executionTime: 2 };
   },
 };
@@ -116,12 +198,16 @@ const Di: InstructionHandler = {
 
 const instructions: InstructionHandler[] = [
   Jump,
+  Ret,
+  RetCond,
   CallNN,
   PushRR,
   PopRR,
-  SaveAcc,
+  SaveRelAcc,
+  LoadRelAcc,
   LoadAcc,
   CmpN,
+  SubN,
   Di,
 ];
 
