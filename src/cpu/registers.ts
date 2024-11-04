@@ -80,6 +80,22 @@ export class Registers {
     this.set8Bits(RegisterNames.A, value);
   }
 
+  get D() {
+    return this.get8Bits(RegisterNames.D);
+  }
+
+  set D(value: number) {
+    this.set8Bits(RegisterNames.D, value);
+  }
+
+  get E() {
+    return this.get8Bits(RegisterNames.E);
+  }
+
+  set E(value: number) {
+    this.set8Bits(RegisterNames.E, value);
+  }
+
   get HL() {
     return this.get16Bits(RegisterNames.HL);
   }

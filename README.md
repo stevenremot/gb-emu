@@ -18,6 +18,10 @@ This is a game boy emulator written for self-educational purposes.
 - [ ] Save / load
 - [ ] Game boy color
 
+## Resources
+
+- [Mooneye-GB test roms](https://github.com/Gekkio/mooneye-gb)
+
 ## Suggested TODO by LLM
 
 Here's a suggested order for implementing the different components of a Game Boy/Game Boy Color emulator to have a smooth and enjoyable development experience:
