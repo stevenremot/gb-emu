@@ -118,6 +118,39 @@ describe("cpu/instructions - Block 0", () => {
     },
   );
 
+  it("Should jump to the relative signed position on 0b00011000", () => {
+    const { processor } = makeInstructionTestInstance(
+      new Uint8Array([
+        // Positive
+        0b00011000, 0b00000010, 0x00, 0x00,
+        // Negative
+        0b00011000, 0b10000010,
+      ]),
+    );
+
+    let result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b00011000,
+        name: "JumpRel",
+      },
+      executionTime: 3,
+    });
+    expect(processor.registers.PC).toEqual(0x104);
+
+    result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b00011000,
+        name: "JumpRel",
+      },
+      executionTime: 3,
+    });
+    expect(processor.registers.PC).toEqual(0x104);
+  });
+
   it("Should load the provided value in SP on 0b00110001", () => {
     const { processor } = makeInstructionTestInstance(
       new Uint8Array([0b00110001, 0xad, 0x10]),
@@ -138,9 +171,9 @@ describe("cpu/instructions - Block 0", () => {
       new Uint8Array([0b00111111]),
     );
 
-    processor.registers.C = 0;
-    processor.registers.N = 1;
-    processor.registers.H = 1;
+    processor.registers.c = 0;
+    processor.registers.n = 1;
+    processor.registers.h = 1;
 
     const result = processor.runOneInstruction();
 
@@ -151,8 +184,123 @@ describe("cpu/instructions - Block 0", () => {
       },
       executionTime: 1,
     });
-    expect(processor.registers.C).toBe(1);
-    expect(processor.registers.N).toBe(0);
-    expect(processor.registers.H).toBe(0);
+    expect(processor.registers.c).toBe(1);
+    expect(processor.registers.n).toBe(0);
+    expect(processor.registers.h).toBe(0);
+  });
+
+  it("Should save A to HL and decrement HL on 0b00110010", () => {
+    const { processor, memoryMap } = makeInstructionTestInstance(
+      new Uint8Array([0b00110010]),
+    );
+
+    processor.registers.A = 7;
+    processor.registers.HL = 0xffe0;
+
+    const result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b00110010,
+        name: "LoadHldA",
+      },
+      executionTime: 2,
+    });
+    expect(processor.registers.PC).toBe(0x101);
+    expect(processor.registers.HL).toBe(0xffdf);
+    expect(memoryMap.readAt(0xffe0)).toBe(7);
+  });
+
+  it("Should save A to HL and increment HL on 0b00100010", () => {
+    const { processor, memoryMap } = makeInstructionTestInstance(
+      new Uint8Array([0b00100010]),
+    );
+
+    processor.registers.A = 7;
+    processor.registers.HL = 0xffe0;
+
+    const result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b00100010,
+        name: "LoadHliA",
+      },
+      executionTime: 2,
+    });
+    expect(processor.registers.PC).toBe(0x101);
+    expect(processor.registers.HL).toBe(0xffe1);
+    expect(memoryMap.readAt(0xffe0)).toBe(7);
+  });
+
+  it("Should decrement RR on 0b00RR1011", () => {
+    const { processor } = makeInstructionTestInstance(
+      new Uint8Array([0b00011011]),
+    );
+    processor.registers.DE = 2;
+
+    const result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b00011011,
+        name: "DecRr",
+      },
+      executionTime: 2,
+    });
+    expect(processor.registers.PC).toBe(0x101);
+    expect(processor.registers.DE).toBe(1);
+  });
+
+  it.each([
+    { value: 0xa0, expectedResult: 0xa1, z: 0, h: 0 },
+    { value: 0xff, expectedResult: 0, z: 1, h: 1 },
+    { value: 0xaf, expectedResult: 0xb0, z: 0, h: 1 },
+  ])(
+    "Should increment value at address HL on 0b00110100 ($value)",
+    ({ value, expectedResult, z, h }) => {
+      const { processor, memoryMap } = makeInstructionTestInstance(
+        new Uint8Array([0b00110100]),
+      );
+      processor.registers.HL = 0xffe1;
+      memoryMap.writeAt(0xffe1, value);
+
+      const result = processor.runOneInstruction();
+
+      expect(result).toEqual({
+        instruction: {
+          opcode: 0b00110100,
+          name: "IncHl",
+        },
+        executionTime: 3,
+      });
+      expect(processor.registers.PC).toBe(0x101);
+      expect(memoryMap.readAt(0xffe1)).toBe(expectedResult);
+      expect(processor.registers.z).toBe(z);
+      expect(processor.registers.n).toBe(0);
+      expect(processor.registers.h).toBe(h);
+    },
+  );
+
+  it("Should increment register RRR on 0b00RRR100", () => {
+    const { processor } = makeInstructionTestInstance(
+      new Uint8Array([0b00010100]),
+    );
+    processor.registers.D = 0xef;
+
+    const result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b00010100,
+        name: "IncR",
+      },
+      executionTime: 1,
+    });
+    expect(processor.registers.PC).toBe(0x101);
+    expect(processor.registers.D).toBe(0xf0);
+    expect(processor.registers.z).toBe(0);
+    expect(processor.registers.n).toBe(0);
+    expect(processor.registers.h).toBe(1);
   });
 });

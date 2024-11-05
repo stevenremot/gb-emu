@@ -38,16 +38,16 @@ const RetCond: InstructionHandler = {
     let condition = false;
     switch (cc) {
       case 0:
-        condition = registers.Z === 0;
+        condition = registers.z === 0;
         break;
       case 1:
-        condition = registers.Z === 1;
+        condition = registers.z === 1;
         break;
       case 2:
-        condition = registers.C === 0;
+        condition = registers.c === 0;
         break;
       case 3:
-        condition = registers.C === 1;
+        condition = registers.c === 1;
         break;
     }
 
@@ -147,6 +147,17 @@ const LoadAcc: InstructionHandler = {
   },
 };
 
+const LoadCA: InstructionHandler = {
+  opcode: 0b11100010,
+  mask: 0xff,
+  name: "LoadCA",
+
+  execute({ registers, memoryMap }) {
+    memoryMap.writeAt(0xff00 + registers.C, registers.A);
+    return { executionTime: 2 };
+  },
+};
+
 const CmpN: InstructionHandler = {
   opcode: 0b11111110,
   mask: 0xff,
@@ -176,10 +187,10 @@ const SubN: InstructionHandler = {
 
     const { result, carry, halfCarry } = subtractUint8(registers.A, value);
     registers.A = result;
-    registers.Z = result === 0 ? 1 : 0;
-    registers.N = 1;
-    registers.H = halfCarry;
-    registers.C = carry;
+    registers.z = result === 0 ? 1 : 0;
+    registers.n = 1;
+    registers.h = halfCarry;
+    registers.c = carry;
 
     return { executionTime: 2 };
   },
@@ -206,6 +217,7 @@ const instructions: InstructionHandler[] = [
   SaveRelAcc,
   LoadRelAcc,
   LoadAcc,
+  LoadCA,
   CmpN,
   SubN,
   Di,

@@ -32,7 +32,7 @@ export class Registers {
   #dataRegisters: Uint8Array;
 
   constructor() {
-    this.PC = 0x100;
+    this.PC = 0x0;
     this.SP = 0xfffe;
     this.IME = false;
     this.#dataRegisters = new Uint8Array(8);
@@ -80,6 +80,14 @@ export class Registers {
     this.set8Bits(RegisterNames.A, value);
   }
 
+  get C() {
+    return this.get8Bits(RegisterNames.C);
+  }
+
+  set C(value: number) {
+    this.set8Bits(RegisterNames.C, value);
+  }
+
   get D() {
     return this.get8Bits(RegisterNames.D);
   }
@@ -96,6 +104,14 @@ export class Registers {
     this.set8Bits(RegisterNames.E, value);
   }
 
+  get DE() {
+    return this.get16Bits(RegisterNames.DE);
+  }
+
+  set DE(value: number) {
+    this.set16Bits(RegisterNames.DE, value);
+  }
+
   get HL() {
     return this.get16Bits(RegisterNames.HL);
   }
@@ -104,35 +120,35 @@ export class Registers {
     this.set16Bits(RegisterNames.HL, value);
   }
 
-  get Z() {
+  get z() {
     return this.getFlag(FlagNames.Z);
   }
 
-  set Z(flag: 0 | 1) {
+  set z(flag: 0 | 1) {
     this.setFlag(FlagNames.Z, flag);
   }
 
-  get N() {
+  get n() {
     return this.getFlag(FlagNames.N);
   }
 
-  set N(flag: 0 | 1) {
+  set n(flag: 0 | 1) {
     this.setFlag(FlagNames.N, flag);
   }
 
-  get H() {
+  get h() {
     return this.getFlag(FlagNames.H);
   }
 
-  set H(flag: 0 | 1) {
+  set h(flag: 0 | 1) {
     this.setFlag(FlagNames.H, flag);
   }
 
-  get C() {
+  get c() {
     return this.getFlag(FlagNames.C);
   }
 
-  set C(flag: 0 | 1) {
+  set c(flag: 0 | 1) {
     this.setFlag(FlagNames.C, flag);
   }
 }

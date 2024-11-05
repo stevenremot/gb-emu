@@ -11,8 +11,29 @@ const BitBHl: InstructionHandler = {
     const bit = (opcode & 0b00111000) >> 3;
     const value = memoryMap.readAt(registers.HL);
     const mask = 1 << bit;
-    registers.Z = value & mask ? 0 : 1;
+    registers.z = value & mask ? 1 : 0;
+    registers.n = 0;
+    registers.h = 1;
+
     return { executionTime: 3 };
+  },
+};
+
+const BitBR: InstructionHandler = {
+  opcode: 0b01000000,
+  mask: 0b11000000,
+  name: "BitBR",
+
+  execute({ opcode, registers }) {
+    const bit = (opcode & 0b00111000) >> 3;
+    const mask = 1 << bit;
+    const register = opcode & 0b00000111;
+    const value = registers.get8Bits(register);
+    registers.z = value & mask ? 1 : 0;
+    registers.n = 0;
+    registers.h = 1;
+
+    return { executionTime: 2 };
   },
 };
 
@@ -33,7 +54,23 @@ const Set: InstructionHandler = {
   },
 };
 
-const instructions: InstructionHandler[] = [BitBHl, Set];
+const ResBHl: InstructionHandler = {
+  opcode: 0b10000110,
+  mask: 0b11000111,
+  name: "ResBHl",
+
+  execute: ({ opcode, registers, memoryMap }) => {
+    const byte = (opcode & 0b00111000) >> 3;
+
+    const currentValue = memoryMap.readAt(registers.HL);
+    const mask = (1 << byte) ^ 0xff;
+    memoryMap.writeAt(registers.HL, currentValue & mask);
+
+    return { executionTime: 4 };
+  },
+};
+
+const instructions: InstructionHandler[] = [BitBHl, BitBR, Set, ResBHl];
 
 const log = logger("InstructionBlockCB");
 

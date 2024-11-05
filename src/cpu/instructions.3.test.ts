@@ -66,8 +66,8 @@ describe("cpu/instructions - Block 3", () => {
         new Uint8Array([opcode]),
       );
 
-      processor.registers.Z = Z;
-      processor.registers.C = C;
+      processor.registers.z = Z;
+      processor.registers.c = C;
       processor.registers.SP = 0xfff0;
       memoryMap.write16bitsAt(processor.registers.SP, 0x1000);
 
@@ -98,8 +98,8 @@ describe("cpu/instructions - Block 3", () => {
         new Uint8Array([opcode]),
       );
 
-      processor.registers.Z = Z;
-      processor.registers.C = C;
+      processor.registers.z = Z;
+      processor.registers.c = C;
       processor.registers.SP = 0xfff0;
       memoryMap.write16bitsAt(processor.registers.SP, 0x1000);
 
@@ -210,6 +210,26 @@ describe("cpu/instructions - Block 3", () => {
     expect(processor.registers.PC).toEqual(0x103);
   });
 
+  it("Should load A at the address 0xFF00 + C on 0b11100010", () => {
+    const { processor, memoryMap } = makeInstructionTestInstance(
+      new Uint8Array([0b11100010]),
+    );
+    processor.registers.A = 0xda;
+    processor.registers.C = 0xf1;
+
+    const result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b11100010,
+        name: "LoadCA",
+      },
+      executionTime: 2,
+    });
+    expect(processor.registers.PC).toBe(0x101);
+    expect(memoryMap.readAt(0xfff1)).toBe(0xda);
+  });
+
   it.each([
     // arg = A
     { A: 0xa0, arg: 0xa0, expected: { Z: 1, N: 1, H: 0, C: 0 } },
@@ -260,10 +280,10 @@ describe("cpu/instructions - Block 3", () => {
     });
     expect(processor.registers.PC).toBe(0x102);
     expect(processor.registers.A).toBe(0xcc);
-    expect(processor.registers.Z).toBe(0);
-    expect(processor.registers.N).toBe(1);
-    expect(processor.registers.H).toBe(1);
-    expect(processor.registers.C).toBe(0);
+    expect(processor.registers.z).toBe(0);
+    expect(processor.registers.n).toBe(1);
+    expect(processor.registers.h).toBe(1);
+    expect(processor.registers.c).toBe(0);
   });
 
   it("Should disable IME register on Ob11110011", () => {

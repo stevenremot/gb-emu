@@ -18,9 +18,7 @@ export class GbemuApp extends HTMLElement {
     this.processorLoop = new ProcessorLoop(this.processor);
 
     this.innerHTML = /* HTML */ `
-      <gbemu-loader-static
-        path="/roms/mts/acceptance/boot_regs-dmg0.gb"
-      ></gbemu-loader-static
+      <gbemu-loader-static path="/roms/dmg_boot.bin"></gbemu-loader-static
       ><gbemu-devtools></gbemu-devtools>
     `;
   }
