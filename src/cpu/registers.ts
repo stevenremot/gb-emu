@@ -104,6 +104,14 @@ export class Registers {
     this.set8Bits(RegisterNames.E, value);
   }
 
+  get BC() {
+    return this.get16Bits(RegisterNames.BC);
+  }
+
+  set BC(value: number) {
+    this.set16Bits(RegisterNames.BC, value);
+  }
+
   get DE() {
     return this.get16Bits(RegisterNames.DE);
   }

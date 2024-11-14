@@ -2,7 +2,7 @@ export function getSigned8(value: number) {
   const absolute = value & 0b01111111;
   const sign = value & 0b10000000;
 
-  return sign ? -absolute : absolute;
+  return sign ? -(0x100 - value) : absolute;
 }
 
 export function addUint8(a: number, b: number) {

@@ -95,4 +95,59 @@ describe("cpu/instructions - Block $CB", () => {
     expect(processor.registers.PC).toBe(0x102);
     expect(memoryMap.readAt(processor.registers.HL)).toBe(0b00001011);
   });
+
+  it.each([
+    {
+      register: RegisterNames.B,
+      value: 0b01000001,
+      c: 0 as const,
+      expectedValue: 0b10000010,
+      expectedC: 0,
+      expectedZ: 0,
+    },
+    {
+      register: RegisterNames.C,
+      value: 0b10000000,
+      c: 0 as const,
+      expectedValue: 0b00000000,
+      expectedC: 1,
+      expectedZ: 1,
+    },
+    {
+      register: RegisterNames.C,
+      value: 0b00000001,
+      c: 1 as const,
+      expectedValue: 0b00000011,
+      expectedC: 0,
+      expectedZ: 0,
+    },
+  ])(
+    "Should rotate RRR left on 0b00010RRR ($register, $value)",
+    ({ register, value, c, expectedValue, expectedC, expectedZ }) => {
+      const opcode = 0b00010000 + register;
+      const { processor } = makeInstructionTestInstance(
+        new Uint8Array([0xcb, opcode]),
+      );
+      processor.registers.n = 1;
+      processor.registers.h = 1;
+      processor.registers.c = c;
+      processor.registers.set8Bits(register, value);
+
+      const result = processor.runOneInstruction();
+
+      expect(result).toEqual({
+        instruction: {
+          opcode,
+          name: "RlR",
+        },
+        executionTime: 2,
+      });
+      expect(processor.registers.PC).toBe(0x102);
+      expect(processor.registers.n).toBe(0);
+      expect(processor.registers.h).toBe(0);
+      expect(processor.registers.get8Bits(register)).toBe(expectedValue);
+      expect(processor.registers.z).toBe(expectedZ);
+      expect(processor.registers.c).toBe(expectedC);
+    },
+  );
 });

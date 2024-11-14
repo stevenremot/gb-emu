@@ -1,5 +1,5 @@
 import { logger } from "../../utils/logger";
-import { addUint8, getSigned8 } from "../operations";
+import { addUint8, getSigned8, subtractUint8 } from "../operations";
 import { FlagNames } from "../registers";
 import { makeInstructionHandlerFromList } from "./handlers";
 import { InstructionHandler } from "./types";
@@ -63,6 +63,42 @@ const LoadNNToRR: InstructionHandler = {
     registers.PC += 2;
 
     return { executionTime: 3 };
+  },
+};
+
+const LoadAHli: InstructionHandler = {
+  opcode: 0b00101010,
+  mask: 0xff,
+  name: "LoadAHli",
+
+  execute({ registers, memoryMap }) {
+    registers.A = memoryMap.readAt(registers.HL);
+    registers.HL += 1;
+    return { executionTime: 2 };
+  },
+};
+
+const LoadAHld: InstructionHandler = {
+  opcode: 0b00111010,
+  mask: 0xff,
+  name: "LoadAHld",
+
+  execute({ registers, memoryMap }) {
+    registers.A = memoryMap.readAt(registers.HL);
+    registers.HL -= 1;
+    return { executionTime: 2 };
+  },
+};
+
+const LoadAR: InstructionHandler = {
+  opcode: 0b00001010,
+  mask: 0b11001111,
+  name: "LoadAR",
+
+  execute({ opcode, registers, memoryMap }) {
+    const register = (opcode & 0b00110000) >> 4;
+    registers.A = memoryMap.readAt(registers.get16Bits(register));
+    return { executionTime: 2 };
   },
 };
 
@@ -139,6 +175,41 @@ const JumpRelCond: InstructionHandler = {
   },
 };
 
+const RlA: InstructionHandler = {
+  opcode: 0b00010111,
+  mask: 0b11111111,
+  name: "RlA",
+
+  execute: ({ registers }) => {
+    const value = registers.A;
+    const carry = ((value & 0b10000000) >> 7) as 0 | 1;
+    const newValue = (value << 1) | registers.c;
+
+    registers.A = newValue;
+    registers.n = 0;
+    registers.h = 0;
+    registers.c = carry;
+    registers.z = 0;
+
+    return { executionTime: 1 };
+  },
+};
+
+const IncRr: InstructionHandler = {
+  opcode: 0b00000011,
+  mask: 0b11001111,
+  name: "IncRr",
+
+  execute({ opcode, registers }) {
+    const register = (opcode & 0b00110000) >> 4;
+    const value = registers.get16Bits(register);
+
+    registers.set16Bits(register, (value + 1) & 0xffff);
+
+    return { executionTime: 2 };
+  },
+};
+
 const DecRr: InstructionHandler = {
   opcode: 0b00001011,
   mask: 0b11001111,
@@ -183,6 +254,45 @@ const IncHl: InstructionHandler = {
   },
 };
 
+const DecR: InstructionHandler = {
+  opcode: 0b00000101,
+  mask: 0b11000111,
+  name: "DecR",
+
+  execute({ opcode, registers }) {
+    const register = (opcode & 0b00111000) >> 3;
+    const value = registers.get8Bits(register);
+    const { result, halfCarry } = subtractUint8(value, 1);
+
+    registers.set8Bits(register, result);
+
+    registers.z = result === 0 ? 1 : 0;
+    registers.n = 1;
+    registers.h = halfCarry;
+
+    return { executionTime: 1 };
+  },
+};
+
+const DecHl: InstructionHandler = {
+  opcode: 0b00110101,
+  mask: 0xff,
+  name: "DecHl",
+
+  execute({ registers, memoryMap }) {
+    const value = memoryMap.readAt(registers.HL);
+    const { result, halfCarry } = subtractUint8(value, 1);
+
+    memoryMap.writeAt(registers.HL, result);
+
+    registers.z = result === 0 ? 1 : 0;
+    registers.n = 1;
+    registers.h = halfCarry;
+
+    return { executionTime: 3 };
+  },
+};
+
 const IncR: InstructionHandler = {
   opcode: 0b00000100,
   mask: 0b11000111,
@@ -205,14 +315,21 @@ const instructions: InstructionHandler[] = [
   LoadNToRRR,
   LoadNNToRR,
   LoadFromSP,
+  LoadAHli,
+  LoadAHld,
+  LoadAR,
   LoadHldA,
   LoadHliA,
   JumpRel,
   JumpRelCond,
+  IncRr,
   DecRr,
+  RlA,
   Ccf,
   IncHl,
+  DecHl,
   IncR,
+  DecR,
 ];
 
 const log = logger("InstructionBlock0");

@@ -70,7 +70,7 @@ const CallNN: InstructionHandler = {
     const value = memoryMap.read16bitsAt(registers.PC);
     registers.PC += 2;
 
-    registers.SP -= 1;
+    registers.SP -= 2;
     memoryMap.write16bitsAt(registers.SP, registers.PC);
 
     registers.PC = value;
@@ -158,6 +158,20 @@ const LoadCA: InstructionHandler = {
   },
 };
 
+const LoadNnA: InstructionHandler = {
+  opcode: 0b11101010,
+  mask: 0xff,
+  name: "LoadNnA",
+
+  execute({ memoryMap, registers }) {
+    const address = memoryMap.read16bitsAt(registers.PC);
+    registers.PC += 2;
+    memoryMap.writeAt(address, registers.A);
+
+    return { executionTime: 4 };
+  },
+};
+
 const CmpN: InstructionHandler = {
   opcode: 0b11111110,
   mask: 0xff,
@@ -218,6 +232,7 @@ const instructions: InstructionHandler[] = [
   LoadRelAcc,
   LoadAcc,
   LoadCA,
+  LoadNnA,
   CmpN,
   SubN,
   Di,

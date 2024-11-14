@@ -70,7 +70,29 @@ const ResBHl: InstructionHandler = {
   },
 };
 
-const instructions: InstructionHandler[] = [BitBHl, BitBR, Set, ResBHl];
+const RlR: InstructionHandler = {
+  opcode: 0b00010000,
+  mask: 0b11111000,
+  name: "RlR",
+
+  execute: ({ opcode, registers }) => {
+    const register = opcode & 0b00000111;
+    const value = registers.get8Bits(register);
+
+    const carry = ((value & 0b10000000) >> 7) as 0 | 1;
+    const newValue = ((value << 1) | registers.c) & 0xff;
+
+    registers.set8Bits(register, newValue);
+    registers.z = newValue === 0 ? 1 : 0;
+    registers.n = 0;
+    registers.h = 0;
+    registers.c = carry;
+
+    return { executionTime: 2 };
+  },
+};
+
+const instructions: InstructionHandler[] = [BitBHl, BitBR, Set, ResBHl, RlR];
 
 const log = logger("InstructionBlockCB");
 

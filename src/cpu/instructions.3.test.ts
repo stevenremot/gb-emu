@@ -28,7 +28,7 @@ describe("cpu/instructions - Block 3", () => {
       executionTime: 6,
     });
     expect(processor.registers.PC).toEqual(0xabcd);
-    expect(processor.registers.SP).toEqual(0xfffd);
+    expect(processor.registers.SP).toEqual(0xfffc);
     expect(memoryMap.read16bitsAt(processor.registers.SP)).toEqual(0x103);
   });
 
@@ -303,5 +303,22 @@ describe("cpu/instructions - Block 3", () => {
     });
     expect(processor.registers.IME).toBe(false);
     expect(processor.registers.PC).toEqual(0x101);
+  });
+
+  it("Should save the A register to the memory address specified by the next 2 bytes on 0b11101010", () => {
+    const { processor, memoryMap } = makeInstructionTestInstance(
+      new Uint8Array([0b11101010, 0x12, 0x34]),
+    );
+
+    processor.registers.A = 0x56;
+
+    const result = processor.runOneInstruction();
+    expect(result).toEqual({
+      executionTime: 4,
+      instruction: { opcode: 0b11101010, name: "LoadNnA" },
+    });
+
+    expect(processor.registers.PC).toBe(0x103);
+    expect(memoryMap.read16bitsAt(0x3412)).toBe(0x56);
   });
 });

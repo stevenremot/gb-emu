@@ -4,7 +4,7 @@ import { addUint8, getSigned8, subtractUint8 } from "./operations";
 describe("cpu/operations", () => {
   describe("getSigned8", () => {
     it.each([
-      { value: 0b10000001, expected: -1 },
+      { value: 0b11111111, expected: -1 },
       { value: 0b00000010, expected: 2 },
     ])(
       "Should set the number sign to negative when the msb is 1 ($value)",
