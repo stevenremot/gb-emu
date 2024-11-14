@@ -1,6 +1,13 @@
 import { DirectMemoryRange } from "./direct-memory-range";
+import { ExternalRam } from "./external-ram";
+import { HighRam } from "./high-ram";
+import { InterruptEnableRegister } from "./interrupt-enable-register";
+import { IoRegisters } from "./io-registers";
+import { ObjectAttributeMemory } from "./object-attribute-memory";
 import { ProgramMemoryRange } from "./program-memory-range";
 import { MemoryRange } from "./types";
+import { VideoRam } from "./video-ram";
+import { WorkRam } from "./work-ram";
 
 /**
  * Main entry for the game boy memory map
@@ -10,10 +17,13 @@ import { MemoryRange } from "./types";
  */
 export class MemoryMap implements MemoryRange {
   public readonly programMemoryRange = new ProgramMemoryRange();
-
-  // Called tmpMemory because the implementation is too simple and
-  // does not take in account bank switching and stuffs. It will be rewritten later.
-  private tmpMemory = new DirectMemoryRange(0x10000 - 0x8000, 0x8000);
+  public readonly videoRam = new VideoRam();
+  public readonly externalRam = new ExternalRam();
+  public readonly workRam = new WorkRam();
+  public readonly objectAttributeMemory = new ObjectAttributeMemory();
+  public readonly ioRegisters = new IoRegisters();
+  public readonly highRam = new HighRam();
+  public readonly interruptEnableRegister = new InterruptEnableRegister();
 
   readAt(address: number) {
     return this.getMemoryRange(address).readAt(address);
@@ -46,8 +56,20 @@ export class MemoryMap implements MemoryRange {
   private getMemoryRange(address: number) {
     if (address < 0x8000) {
       return this.programMemoryRange;
+    } else if (address < 0xa000) {
+      return this.videoRam;
+    } else if (address < 0xc000) {
+      return this.externalRam;
+    } else if (address < 0xfe00) {
+      return this.workRam;
+    } else if (address < 0xff00) {
+      return this.objectAttributeMemory;
+    } else if (address < 0xff80) {
+      return this.ioRegisters;
+    } else if (address < 0xffff) {
+      return this.highRam;
     }
 
-    return this.tmpMemory;
+    return this.interruptEnableRegister;
   }
 }
