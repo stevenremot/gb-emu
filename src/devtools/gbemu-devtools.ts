@@ -26,50 +26,35 @@ export class GbemuDevtools extends HTMLElement {
 
   connectedCallback() {
     this.querySelector("#run-one")?.addEventListener("click", () => {
-      this.app.processor.runOneInstruction();
+      this.app.workerClient.runOneInstruction();
       this.pause();
     });
 
     const playPauseButton = assertNotNull(this.querySelector("#play-pause"));
     playPauseButton.addEventListener("click", () => {
-      if (this.app.processorLoop.isRunning) {
-        this.app.processorLoop.stop();
-      } else {
-        this.app.processorLoop.start();
-      }
+      this.app.workerClient.toggleLoop();
     });
 
-    this.app.processorLoop.addObserver({
-      onStarted() {
-        playPauseButton.textContent = "⏸️";
-      },
-      onStopped() {
-        playPauseButton.textContent = "▶️";
-      },
+    this.app.workerClient.addMessageListener("runner:loop-started", () => {
+      playPauseButton.textContent = "⏸️";
     });
 
-    this.app.processor.addObserver({
-      afterInstruction: (result) => {
-        this.logInstruction(result);
+    this.app.workerClient.addMessageListener("runner:loop-stopped", () => {
+      playPauseButton.textContent = "▶️";
+    });
 
+    this.app.workerClient.addMessageListener(
+      "runner:unknown-instruction",
+      (result) => {
         if (!result.instruction?.name) {
           this.pause();
         }
       },
-    });
-  }
-
-  logInstruction(result: InstructionResult) {
-    this.#logger.info(
-      result.instruction
-        ? `${result.instruction.name} (${formatOpcode(result.instruction.opcode)}) -`
-        : "---",
-      `execTime: ${result.executionTime}`,
     );
   }
 
   pause() {
-    this.app.processorLoop.stop();
+    this.app.workerClient.stop();
     document.body.dispatchEvent(new CustomEvent("gbemu:execution-paused"));
   }
 

@@ -1,25 +1,27 @@
-import { Processor } from "./cpu/processor";
-import { MemoryMap } from "./memory/memory-map";
-
 import "./devtools/gbemu-devtools";
 import "./gbemu-loader-static";
-import { ProcessorLoop } from "./cpu/processor-loop";
+import { WorkerClient } from "./worker/worker-client";
 
 export class GbemuApp extends HTMLElement {
-  readonly memoryMap: MemoryMap;
-  readonly processor: Processor;
-  readonly processorLoop: ProcessorLoop;
+  readonly workerClient = new WorkerClient();
 
   constructor() {
     super();
 
-    this.memoryMap = new MemoryMap();
-    this.processor = new Processor(this.memoryMap);
-    this.processorLoop = new ProcessorLoop(this.processor);
+    this.workerClient.start();
 
     this.innerHTML = /* HTML */ `
-      <gbemu-loader-static path="/roms/dmg_boot.bin"></gbemu-loader-static
-      ><gbemu-devtools></gbemu-devtools>
+      <gbemu-loader-static
+        type="boot"
+        path="/roms/boot/dmg_boot.bin"
+      ></gbemu-loader-static>
+
+      <gbemu-loader-static
+        type="cartridge"
+        path="/roms/gb-test-roms/cpu_instrs/cpu_instrs/individual/01-special.gb"
+      ></gbemu-loader-static>
+
+      <gbemu-devtools></gbemu-devtools>
     `;
   }
 }

@@ -53,27 +53,31 @@ export class GbemuDevtoolsRegisters extends HTMLElement {
   }
 
   connectedCallback() {
-    document.body.addEventListener("gbemu:execution-paused", () => {
-      this.update();
-    });
+    this.app.workerClient.addMessageListener(
+      "debug:registers-changed",
+      (registers) => this.update(registers),
+    );
   }
 
-  update() {
-    const { registers } = this.app.processor;
-
+  update(registers: {
+    PC: number;
+    SP: number;
+    "16bits": [number, number, number, number];
+    "8bits": [number, number, number, number, number, number, number, number];
+  }) {
     this.querySelector(".pc .value")!.textContent = registers.PC.toString(16);
     this.querySelector(".sp .value")!.textContent = registers.SP.toString(16);
 
     for (let i = 0; i < 4; i += 1) {
       this.querySelector(
         `tbody tr:first-child td:nth-child(${i + 1})`,
-      )!.textContent = registers.get16Bits(i).toString(16);
+      )!.textContent = registers["16bits"][i].toString(16);
     }
 
     for (let i = 0; i < 8; i += 1) {
       this.querySelector(
         `tbody tr:last-child td:nth-child(${i + 1})`,
-      )!.textContent = registers.get8Bits(i).toString(16);
+      )!.textContent = registers["8bits"][i].toString(16);
     }
   }
 
