@@ -121,15 +121,20 @@ const SaveRelAcc: InstructionHandler = {
 const LoadRelAcc: InstructionHandler = {
   opcode: 0b11110000,
   mask: 0xff,
-  name: "LoadRelAcc",
 
-  execute({ registers, memoryMap }) {
+  execute({ opcode, registers, memoryMap }) {
     const addressOffset = memoryMap.readAt(registers.PC);
     registers.PC += 1;
     const value = memoryMap.readAt(0xff00 + addressOffset);
     registers.set8Bits(RegisterNames.A, value);
 
-    return { executionTime: 3 };
+    return {
+      instruction: {
+        opcode,
+        name: `LD A, ($FF00+$${addressOffset.toString(16)})`,
+      },
+      executionTime: 3,
+    };
   },
 };
 
@@ -175,9 +180,8 @@ const LoadNnA: InstructionHandler = {
 const CmpN: InstructionHandler = {
   opcode: 0b11111110,
   mask: 0xff,
-  name: "CmpN",
 
-  execute({ registers, memoryMap }) {
+  execute({ opcode, registers, memoryMap }) {
     const value = memoryMap.readAt(registers.PC);
     const A = registers.get8Bits(RegisterNames.A);
     registers.PC += 1;
@@ -186,7 +190,10 @@ const CmpN: InstructionHandler = {
     registers.setFlag(FlagNames.N, 1);
     registers.setFlag(FlagNames.C, carry);
     registers.setFlag(FlagNames.H, halfCarry);
-    return { executionTime: 2 };
+    return {
+      instruction: { opcode, name: `CP $${value.toString(16)}` },
+      executionTime: 2,
+    };
   },
 };
 

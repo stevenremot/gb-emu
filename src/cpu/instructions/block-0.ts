@@ -141,37 +141,46 @@ const JumpRel: InstructionHandler = {
 const JumpRelCond: InstructionHandler = {
   opcode: 0b00100000,
   mask: 0b11100111,
-  name: "JumpRelCond",
 
   execute({ opcode, registers, memoryMap }) {
     const condition = (opcode & 0b00011000) >> 3;
 
     let isConditionMet = false;
+    let condName = "";
 
     switch (condition) {
       case 0:
         isConditionMet = registers.getFlag(FlagNames.Z) === 0;
+        condName = "NZ";
         break;
       case 1:
         isConditionMet = registers.getFlag(FlagNames.Z) === 1;
+        condName = "Z";
         break;
       case 2:
         isConditionMet = registers.getFlag(FlagNames.C) === 0;
+        condName = "NC";
         break;
       case 3:
         isConditionMet = registers.getFlag(FlagNames.C) === 1;
+        condName = "C";
         break;
     }
 
+    const offset = getSigned8(memoryMap.readAt(registers.PC));
+    const instruction = {
+      opcode,
+      name: `JR ${condName}, $${offset.toString(16)}`,
+    };
+
     if (isConditionMet) {
-      const offset = getSigned8(memoryMap.readAt(registers.PC));
       registers.PC += 1 + offset;
-      return { executionTime: 3 };
+      return { instruction, executionTime: 3 };
     }
 
     registers.PC += 1;
 
-    return { executionTime: 2 };
+    return { instruction, executionTime: 2 };
   },
 };
 

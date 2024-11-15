@@ -63,13 +63,13 @@ describe("cpu/instructions - Block 0", () => {
   });
 
   it.each([
-    { CC: 0, Z: 0, C: 0 },
-    { CC: 1, Z: 1, C: 0 },
-    { CC: 2, Z: 0, C: 0 },
-    { CC: 3, Z: 0, C: 1 },
+    { CC: 0, Z: 0, C: 0, condName: "NZ" },
+    { CC: 1, Z: 1, C: 0, condName: "Z" },
+    { CC: 2, Z: 0, C: 0, condName: "NC" },
+    { CC: 3, Z: 0, C: 1, condName: "C" },
   ] as const)(
     "Should jump to the provided address offset when the condition is met on 0b001CC000 ($CC)",
-    ({ CC, Z, C }) => {
+    ({ CC, Z, C, condName }) => {
       const opcode = 0b00100000 | (CC << 3);
       const { processor } = makeInstructionTestInstance(
         new Uint8Array([opcode, 0x4]),
@@ -82,7 +82,7 @@ describe("cpu/instructions - Block 0", () => {
       expect(result).toEqual({
         instruction: {
           opcode,
-          name: "JumpRelCond",
+          name: `JR ${condName}, $4`,
         },
         executionTime: 3,
       });
@@ -91,13 +91,13 @@ describe("cpu/instructions - Block 0", () => {
   );
 
   it.each([
-    { CC: 0, Z: 1, C: 0 },
-    { CC: 1, Z: 0, C: 0 },
-    { CC: 2, Z: 0, C: 1 },
-    { CC: 3, Z: 0, C: 0 },
+    { CC: 0, Z: 1, C: 0, condName: "NZ" },
+    { CC: 1, Z: 0, C: 0, condName: "Z" },
+    { CC: 2, Z: 0, C: 1, condName: "NC" },
+    { CC: 3, Z: 0, C: 0, condName: "C" },
   ] as const)(
     "Should not jump to the provided address offset when the condition is not met on 0b001CC000 ($CC)",
-    ({ CC, Z, C }) => {
+    ({ CC, Z, C, condName }) => {
       const opcode = 0b00100000 | (CC << 3);
       const { processor } = makeInstructionTestInstance(
         new Uint8Array([opcode, 0x4]),
@@ -110,7 +110,7 @@ describe("cpu/instructions - Block 0", () => {
       expect(result).toEqual({
         instruction: {
           opcode,
-          name: "JumpRelCond",
+          name: `JR ${condName}, $4`,
         },
         executionTime: 2,
       });

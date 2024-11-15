@@ -183,7 +183,7 @@ describe("cpu/instructions - Block 3", () => {
     expect(result).toEqual({
       instruction: {
         opcode: 0b11110000,
-        name: "LoadRelAcc",
+        name: "LD A, ($FF00+$e1)",
       },
       executionTime: 3,
     });
@@ -251,7 +251,7 @@ describe("cpu/instructions - Block 3", () => {
       expect(result).toEqual({
         instruction: {
           opcode: 0b11111110,
-          name: "CmpN",
+          name: `CP $${arg.toString(16)}`,
         },
         executionTime: 2,
       });
