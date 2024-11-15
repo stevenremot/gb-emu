@@ -1,0 +1,14 @@
+gbemu-devtools-palette {
+  --size: 2rem;
+
+  display: flex;
+  flex-direction: row;
+  height: var(--size);
+  align-items: stretch;
+  gap: 1px;
+
+  .palette-color {
+    flex: 0 0 var(--size);
+    background-color: var(--color, black);
+  }
+}

@@ -4,6 +4,9 @@ import { MemoryMap } from "../memory/memory-map";
 import { Loader } from "./loader";
 import { InstructionLogger } from "./instruction-logger";
 import { Runner } from "./runner";
+import { debugRegisters } from "./debug/registers";
+import { debugGraphicsBaseData } from "./debug/graphics";
+import { TileDebugger } from "./debug/tile-debugger";
 
 const memoryMap = new MemoryMap();
 const processor = new Processor(memoryMap);
@@ -14,6 +17,7 @@ const instructionLogger = new InstructionLogger();
 const messageHandlers = {
   loader: new Loader(processorLoop, memoryMap),
   runner: new Runner(processor, processorLoop),
+  tileDebugger: new TileDebugger(memoryMap),
 };
 
 onmessage = (event) => {
@@ -42,23 +46,10 @@ processorLoop.addObserver({
   },
   onStopped() {
     postMessage({ type: "runner:loop-stopped" });
-
-    const registers = {
-      PC: processor.registers.PC,
-      SP: processor.registers.SP,
-      "16bits": [] as number[],
-      "8bits": [] as number[],
-    };
-
-    for (let i = 0; i < 4; i += 1) {
-      registers["16bits"].push(processor.registers.get16Bits(i));
-    }
-
-    for (let i = 0; i < 8; i += 1) {
-      registers["8bits"].push(processor.registers.get8Bits(i));
-    }
-
-    postMessage({ type: "debug:registers-changed", payload: registers });
+    debugRegisters(processor.registers);
+    debugGraphicsBaseData(memoryMap);
     instructionLogger.flushLogs();
   },
 });
+
+Object.assign(globalThis, { memoryMap });

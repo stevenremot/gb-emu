@@ -1,16 +1,14 @@
-import { InstructionResult } from "../cpu/instructions/types";
 import { Processor } from "../cpu/processor";
-import { formatOpcode } from "../cpu/utils/opcode";
 import { GbemuApp } from "../gbemu-app";
 import { assertNotNull } from "../utils/assertions";
-import { logger } from "../utils/logger";
 
 import "./gbemu-devtools-registers";
+import "./gbemu-devtools-graphics-base-data";
 import "./gbemu-devtools.style.css";
+import "./gbemu-devtools-tile-data";
 
 export class GbemuDevtools extends HTMLElement {
   processor?: Processor;
-  #logger = logger("DEBUG");
 
   constructor() {
     super();
@@ -21,6 +19,8 @@ export class GbemuDevtools extends HTMLElement {
         <button type="button" id="run-one">Run one</button>
       </div>
       <gbemu-devtools-registers></gbemu-devtools-registers>
+      <gbemu-devtools-graphics-base-data></gbemu-devtools-graphics-base-data>
+      <gbemu-devtools-tile-data></gbemu-devtools-tile-data>
     `;
   }
 

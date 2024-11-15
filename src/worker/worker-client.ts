@@ -7,29 +7,33 @@ export class WorkerClient {
     });
   }
 
+  callMethod(payload: { target: string; method: string; payload?: unknown }) {
+    this.worker?.postMessage(payload);
+  }
+
   runOneInstruction() {
-    this.worker?.postMessage({
+    this.callMethod({
       target: "runner",
       method: "runOneInstruction",
     });
   }
 
   toggleLoop() {
-    this.worker?.postMessage({
+    this.callMethod({
       target: "runner",
       method: "toggle",
     });
   }
 
   stop() {
-    this.worker?.postMessage({
+    this.callMethod({
       target: "runner",
       method: "stop",
     });
   }
 
   loadUrl(type: "boot" | "cartridge", path: string) {
-    this.worker?.postMessage({
+    this.callMethod({
       target: "loader",
       method: "loadUrl",
       payload: { type, path },

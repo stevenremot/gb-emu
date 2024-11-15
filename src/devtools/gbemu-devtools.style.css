@@ -6,6 +6,7 @@ gbemu-devtools {
   align-items: stretch;
 
   height: 100%;
+  overflow: auto;
   color: #222244;
   background-color: #eeeeee;
 
@@ -25,11 +26,15 @@ gbemu-devtools {
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.5rem;
   }
 
   .section-title {
     font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .entry-title {
     font-weight: 600;
   }
 }
