@@ -16,6 +16,12 @@ export class GbemuDevtoolsTileData extends HTMLElement {
         <div class="canvas-wrapper">
           <canvas id="devtools-tile-canvas"></canvas>
         </div>
+
+        <button id="devtools-screen-refresh">Screen Refresh</button>
+
+        <div class="canvas-wrapper">
+          <canvas id="devtools-screen-canvas"></canvas>
+        </div>
       </div>
     `;
   }
@@ -27,6 +33,12 @@ export class GbemuDevtoolsTileData extends HTMLElement {
 
     const ctx = assertNotNull(canvas.getContext("bitmaprenderer"));
 
+    const canvas2 = this.querySelector(
+      "#devtools-screen-canvas",
+    ) as HTMLCanvasElement;
+
+    const ctx2 = assertNotNull(canvas2.getContext("bitmaprenderer"));
+
     this.querySelector("#devtools-tiles-refresh")?.addEventListener(
       "click",
       () => {
@@ -37,10 +49,27 @@ export class GbemuDevtoolsTileData extends HTMLElement {
       },
     );
 
+    this.querySelector("#devtools-screen-refresh")?.addEventListener(
+      "click",
+      () => {
+        this.app.workerClient.callMethod({
+          target: "screenRenderer",
+          method: "refresh",
+        });
+      },
+    );
+
     this.app.workerClient.addMessageListener(
       "debug:tiles-refreshed",
       (image) => {
         ctx.transferFromImageBitmap(image);
+      },
+    );
+
+    this.app.workerClient.addMessageListener(
+      "graphics:frame-rendered",
+      (image) => {
+        ctx2.transferFromImageBitmap(image);
       },
     );
   }

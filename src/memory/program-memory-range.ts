@@ -12,7 +12,7 @@ export class ProgramMemoryRange implements MemoryRange {
   private isBootRomActive = true;
 
   private readonly bootRom = new DirectMemoryRange(0x100);
-  private readonly programRom = new DirectMemoryRange(0x7fff);
+  private readonly programRom = new DirectMemoryRange(0x8000);
 
   setBootRom(bootRom: Uint8Array) {
     this.bootRom.reset(bootRom);

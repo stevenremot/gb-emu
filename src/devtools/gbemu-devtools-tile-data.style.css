@@ -1,6 +1,6 @@
 gbemu-devtools-tile-data {
   .canvas-wrapper {
-    max-height: 100rem;
+    max-height: 20rem;
     overflow: auto;
   }
 }

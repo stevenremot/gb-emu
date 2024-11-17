@@ -7,6 +7,7 @@ import { Runner } from "./runner";
 import { debugRegisters } from "./debug/registers";
 import { debugGraphicsBaseData } from "./debug/graphics";
 import { TileDebugger } from "./debug/tile-debugger";
+import { ScreenRenderer } from "../graphics/screen-renderer";
 
 const memoryMap = new MemoryMap();
 const processor = new Processor(memoryMap);
@@ -18,6 +19,7 @@ const messageHandlers = {
   loader: new Loader(processorLoop, memoryMap),
   runner: new Runner(processor, processorLoop),
   tileDebugger: new TileDebugger(memoryMap),
+  screenRenderer: new ScreenRenderer(memoryMap),
 };
 
 onmessage = (event) => {
