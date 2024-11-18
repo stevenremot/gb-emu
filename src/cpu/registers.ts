@@ -15,6 +15,19 @@ export const RegisterNames = {
   AF: 3,
 } as const;
 
+export const registerByCode = {
+  "8bits": {
+    [RegisterNames.B]: "B",
+    [RegisterNames.C]: "C",
+    [RegisterNames.D]: "D",
+    [RegisterNames.E]: "E",
+    [RegisterNames.H]: "H",
+    [RegisterNames.L]: "L",
+    [RegisterNames.F]: "F",
+    [RegisterNames.A]: "A",
+  },
+};
+
 export const FlagNames = {
   Z: 7,
   N: 6,

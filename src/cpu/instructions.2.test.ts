@@ -27,6 +27,31 @@ describe("cpu/instructions - Block 2", () => {
     expect(processor.registers.n).toBe(0);
   });
 
+  it("Should perform a SUB between A and register RRR and store back the result to A on Ob10010RRR", () => {
+    const { processor } = makeInstructionTestInstance(
+      new Uint8Array([0b10010010]),
+    );
+    processor.registers.A = 0xa1;
+    processor.registers.D = 0x0f;
+    processor.registers.n = 0;
+
+    const result = processor.runOneInstruction();
+
+    expect(result).toEqual({
+      instruction: {
+        opcode: 0b10010010,
+        name: "SUB D",
+      },
+      executionTime: 1,
+    });
+    expect(processor.registers.PC).toBe(0x101);
+    expect(processor.registers.A).toBe(0x92);
+    expect(processor.registers.z).toBe(0);
+    expect(processor.registers.c).toBe(0);
+    expect(processor.registers.h).toBe(1);
+    expect(processor.registers.n).toBe(1);
+  });
+
   it("Should compare A and value HL points to on 0b10111110", () => {
     const { processor, memoryMap } = makeInstructionTestInstance(
       new Uint8Array([0b10111110]),
