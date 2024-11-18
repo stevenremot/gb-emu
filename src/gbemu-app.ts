@@ -1,5 +1,6 @@
 import "./devtools/gbemu-devtools";
 import "./gbemu-loader-static";
+import "./graphics/gbemu-screen";
 import { WorkerClient } from "./worker/worker-client";
 
 export class GbemuApp extends HTMLElement {
@@ -20,6 +21,8 @@ export class GbemuApp extends HTMLElement {
         type="cartridge"
         path="/roms/tetris.gb"
       ></gbemu-loader-static>
+
+      <gbemu-screen></gbemu-screen>
 
       <gbemu-devtools></gbemu-devtools>
     `;

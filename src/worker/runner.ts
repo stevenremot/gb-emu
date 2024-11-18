@@ -6,6 +6,7 @@ export class Runner implements MessageHandler {
   constructor(
     private readonly processor: Processor,
     private readonly processorLoop: ProcessorLoop,
+    private readonly screenRenderer: Generator<unknown, unknown, number>,
   ) {}
 
   toggle() {
@@ -20,6 +21,7 @@ export class Runner implements MessageHandler {
     switch (message) {
       case "runOneInstruction":
         this.processor.runOneInstruction();
+        this.screenRenderer.next(0.1);
         break;
       case "stop":
         this.processorLoop.stop();

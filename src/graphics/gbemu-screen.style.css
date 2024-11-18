@@ -1,0 +1,6 @@
+gbemu-screen {
+  #screen-canvas {
+    width: 100%;
+    aspect-ratio: 160 / 144;
+  }
+}

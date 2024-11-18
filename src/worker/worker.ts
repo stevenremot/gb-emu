@@ -15,11 +15,14 @@ const processorLoop = new ProcessorLoop(processor);
 
 const instructionLogger = new InstructionLogger();
 
+const screenRenderer = new ScreenRenderer(memoryMap);
+const frameRenderer = screenRenderer.renderFrame();
+
 const messageHandlers = {
   loader: new Loader(processorLoop, memoryMap),
-  runner: new Runner(processor, processorLoop),
+  runner: new Runner(processor, processorLoop, frameRenderer),
   tileDebugger: new TileDebugger(memoryMap),
-  screenRenderer: new ScreenRenderer(memoryMap),
+  screenRenderer,
 };
 
 onmessage = (event) => {
@@ -45,6 +48,9 @@ processor.addObserver({
 processorLoop.addObserver({
   onStarted() {
     postMessage({ type: "runner:loop-started" });
+  },
+  onStep(delay) {
+    frameRenderer.next(delay);
   },
   onStopped() {
     postMessage({ type: "runner:loop-stopped" });

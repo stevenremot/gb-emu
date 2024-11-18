@@ -7,8 +7,11 @@ export class WorkerClient {
     });
   }
 
-  callMethod(payload: { target: string; method: string; payload?: unknown }) {
-    this.worker?.postMessage(payload);
+  callMethod(
+    payload: { target: string; method: string; payload?: unknown },
+    transfer?: Transferable[],
+  ) {
+    this.worker?.postMessage(payload, transfer);
   }
 
   runOneInstruction() {

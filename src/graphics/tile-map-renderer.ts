@@ -23,7 +23,6 @@ export class TileMapRenderer {
 
     for (let line = 0; line < 32; line += 1) {
       const lineTiles = this.memoryMap.readRange(startAddress + line * 32, 32);
-      console.groupCollapsed(lineTiles);
 
       for (let column = 0; column < lineTiles.length; column += 1) {
         const blockId = lineTiles[column];
@@ -31,8 +30,6 @@ export class TileMapRenderer {
           blockId,
           1 - this.lcdMemoryView.controlFlags.bgWindowAddressingMode,
         );
-
-        console.log(line, column, tile);
 
         for (let pixelLine = 0; pixelLine < tile.length; pixelLine += 1) {
           for (
@@ -45,10 +42,37 @@ export class TileMapRenderer {
           }
         }
       }
-
-      console.groupEnd();
     }
 
     return background;
+  }
+
+  getBackgroundLine(line: number) {
+    // TODO: scroll
+    const backgroundLine = Array.from({ length: 256 }, () => 0);
+
+    const startAddress = 0x9800 + line * 32;
+    const lineTiles = this.memoryMap.readRange(startAddress + line * 32, 32);
+
+    for (let column = 0; column < lineTiles.length; column += 1) {
+      const blockId = lineTiles[column];
+      const tile = this.tileDataView.getTile(
+        blockId,
+        1 - this.lcdMemoryView.controlFlags.bgWindowAddressingMode,
+      );
+
+      for (let pixelLine = 0; pixelLine < tile.length; pixelLine += 1) {
+        for (
+          let pixelColumn = 0;
+          pixelColumn < tile[pixelLine].length;
+          pixelColumn += 1
+        ) {
+          backgroundLine[column * 8 + pixelColumn] =
+            tile[pixelLine][pixelColumn];
+        }
+      }
+    }
+
+    return backgroundLine;
   }
 }

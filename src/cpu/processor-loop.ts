@@ -7,6 +7,7 @@ const maxDelay = 1000;
 export type ProcessorLoopObserver = {
   onStarted?(): void;
   onStopped?(): void;
+  onStep?(delay: number): void;
 };
 
 export class ProcessorLoop {
@@ -42,7 +43,11 @@ export class ProcessorLoop {
 
       while (this.currentDelay >= cycleTime && this.#isRunning) {
         const { executionTime } = this.processor.runOneInstruction();
-        this.currentDelay -= executionTime * cycleTime;
+        const miniDelay = executionTime * cycleTime;
+        for (const observer of this.observers) {
+          observer.onStep?.(miniDelay);
+        }
+        this.currentDelay -= miniDelay;
       }
 
       requestAnimationFrame(loop);

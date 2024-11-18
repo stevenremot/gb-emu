@@ -17,6 +17,10 @@ export class LcdMemoryView {
     return this.ioRegisters.readAt(0xff44);
   }
 
+  set LY(value: number) {
+    this.ioRegisters.writeAt(0xff44, value);
+  }
+
   get LYC() {
     return this.ioRegisters.readAt(0xff45);
   }
