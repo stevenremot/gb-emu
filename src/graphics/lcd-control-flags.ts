@@ -9,13 +9,13 @@ export class LcdControlFlags {
   public readonly bgWindowEnable: number;
 
   constructor(lcdControlByte: number) {
-    this.lcdEnable = 0x1000000 & lcdControlByte ? 1 : 0;
-    this.windowTileMap = 0x0100000 & lcdControlByte ? 1 : 0;
-    this.windowEnable = 0x0010000 & lcdControlByte ? 1 : 0;
-    this.bgWindowAddressingMode = 0x00010000 & lcdControlByte ? 1 : 0;
-    this.bgTileMap = 0x00001000 & lcdControlByte ? 1 : 0;
-    this.objSize = 0x00000100 & lcdControlByte ? 1 : 0;
-    this.objEnable = 0x00000010 & lcdControlByte ? 1 : 0;
-    this.bgWindowEnable = 0x00000001 & lcdControlByte ? 1 : 0;
+    this.lcdEnable = 0b1000000 & lcdControlByte ? 1 : 0;
+    this.windowTileMap = 0b0100000 & lcdControlByte ? 1 : 0;
+    this.windowEnable = 0b0010000 & lcdControlByte ? 1 : 0;
+    this.bgWindowAddressingMode = 0b00010000 & lcdControlByte ? 1 : 0;
+    this.bgTileMap = 0b00001000 & lcdControlByte ? 1 : 0;
+    this.objSize = 0b00000100 & lcdControlByte ? 1 : 0;
+    this.objEnable = 0b00000010 & lcdControlByte ? 1 : 0;
+    this.bgWindowEnable = 0b00000001 & lcdControlByte ? 1 : 0;
   }
 }

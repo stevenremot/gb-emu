@@ -1,6 +1,8 @@
 import { MemoryRange } from "./types";
 
 export class DirectMemoryRange implements MemoryRange {
+  private static enableDebug = false;
+
   private internalData: Uint8Array;
 
   constructor(
@@ -11,6 +13,7 @@ export class DirectMemoryRange implements MemoryRange {
   }
 
   private assertAddressInRange(address: number) {
+    if (!DirectMemoryRange.enableDebug) return;
     if (
       address < this.offset ||
       address - this.offset >= this.internalData.length
@@ -22,8 +25,9 @@ export class DirectMemoryRange implements MemoryRange {
   }
 
   private assertRangeInRange(address: number, length: number) {
+    if (!DirectMemoryRange.enableDebug) return;
     this.assertAddressInRange(address);
-    this.assertAddressInRange(address + length);
+    this.assertAddressInRange(address + length - 1);
   }
 
   readAt(address: number) {
@@ -39,7 +43,7 @@ export class DirectMemoryRange implements MemoryRange {
 
   readRange(address: number, length: number) {
     this.assertRangeInRange(address, length);
-    return this.internalData.slice(
+    return this.internalData.subarray(
       address - this.offset,
       address + length - this.offset,
     );

@@ -13,6 +13,14 @@ export class LcdMemoryView {
     return new LcdStatusFlags(this.ioRegisters.readAt(0xff41));
   }
 
+  get SCY() {
+    return this.ioRegisters.readAt(0xff42);
+  }
+
+  get SCX() {
+    return this.ioRegisters.readAt(0xff43);
+  }
+
   get LY() {
     return this.ioRegisters.readAt(0xff44);
   }

@@ -1,6 +1,6 @@
 import { MemoryMap } from "../memory/memory-map";
 import { MessageHandler } from "../worker/types";
-import { paletteColors } from "./constants";
+import { paletteColors, paletteColorsRgb } from "./constants";
 import { LcdMemoryView } from "./lcd-memory-view";
 import { TileMapRenderer } from "./tile-map-renderer";
 
@@ -14,6 +14,8 @@ export class ScreenRenderer implements MessageHandler {
 
   private readonly tileMapRenderer: TileMapRenderer;
   private readonly lcdMemoryView: LcdMemoryView;
+
+  private readonly cachedLineData = new Uint8ClampedArray(4 * 160);
 
   constructor(memoryMap: MemoryMap) {
     this.tileMapRenderer = new TileMapRenderer(memoryMap);
@@ -52,10 +54,22 @@ export class ScreenRenderer implements MessageHandler {
 
     const backgroundLine = this.tileMapRenderer.getBackgroundLine(line);
 
+    const lineData = this.cachedLineData;
+    let currentDataIndex = 0;
     for (let x = 0; x < backgroundLine.length; x += 1) {
-      this.ctx.fillStyle = paletteColors[backgroundLine[x]];
-      this.ctx.fillRect(x, line, 1, 1);
+      const [r, g, b] = paletteColorsRgb[backgroundLine[x]];
+
+      lineData[currentDataIndex + 0] = r;
+      lineData[currentDataIndex + 1] = g;
+      lineData[currentDataIndex + 2] = b;
+      lineData[currentDataIndex + 3] = 255;
+      currentDataIndex += 4;
     }
+    this.ctx.putImageData(
+      new ImageData(lineData, backgroundLine.length, 1),
+      0,
+      line,
+    );
   }
 
   onMessage(message: string, payload: any) {

@@ -40,16 +40,18 @@ describe("graphics/TileDataView", () => {
 
       const tileDataView = new TileDataView(memoryMap.videoRam);
 
-      expect(tileDataView.getTile(blockId, addressMode)).toEqual([
-        [0, 2, 3, 3, 3, 3, 2, 0],
-        [0, 3, 0, 0, 0, 0, 3, 0],
-        [0, 3, 0, 0, 0, 0, 3, 0],
-        [0, 3, 0, 0, 0, 0, 3, 0],
-        [0, 3, 1, 3, 3, 3, 3, 0],
-        [0, 1, 1, 1, 3, 1, 3, 0],
-        [0, 3, 1, 3, 1, 3, 2, 0],
-        [0, 2, 3, 3, 3, 2, 0, 0],
-      ]);
+      expect(tileDataView.getTile(blockId, addressMode)).toEqual(
+        new Uint8Array([
+          ...[0, 2, 3, 3, 3, 3, 2, 0],
+          ...[0, 3, 0, 0, 0, 0, 3, 0],
+          ...[0, 3, 0, 0, 0, 0, 3, 0],
+          ...[0, 3, 0, 0, 0, 0, 3, 0],
+          ...[0, 3, 1, 3, 3, 3, 3, 0],
+          ...[0, 1, 1, 1, 3, 1, 3, 0],
+          ...[0, 3, 1, 3, 1, 3, 2, 0],
+          ...[0, 2, 3, 3, 3, 2, 0, 0],
+        ]),
+      );
     },
   );
 });

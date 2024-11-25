@@ -13,6 +13,12 @@ export class GbemuDevtoolsGraphicsBaseData extends HTMLElement {
         <div class="section-title">Graphics base data</div>
 
         <div class="entry">
+          <span class="entry-title">SCY:</span> <span class="target-scy"></span>
+        </div>
+        <div class="entry">
+          <span class="entry-title">SCX:</span> <span class="target-scx"></span>
+        </div>
+        <div class="entry">
           <span class="entry-title">LY:</span> <span class="target-ly"></span>
         </div>
         <div class="entry">
@@ -108,6 +114,10 @@ export class GbemuDevtoolsGraphicsBaseData extends HTMLElement {
             payload.lcdStatus[key];
         }
 
+        assertNotNull(this.querySelector(".target-scx")).textContent =
+          payload.SCX;
+        assertNotNull(this.querySelector(".target-scy")).textContent =
+          payload.SCY;
         assertNotNull(this.querySelector(".target-ly")).textContent =
           payload.LY;
         assertNotNull(this.querySelector(".target-lyc")).textContent =

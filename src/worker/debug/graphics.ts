@@ -25,6 +25,8 @@ export function debugGraphicsBaseData(memoryMap: MemoryMap) {
       lycEqualsLy: lcdStatusFlags.lycEqualsLy,
       ppuMode: lcdStatusFlags.ppuMode,
     },
+    SCY: view.SCY,
+    SCX: view.SCX,
     LY: view.LY,
     LYC: view.LYC,
     backgroundPalette: view.backgroundPalette,
