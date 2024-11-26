@@ -16,15 +16,15 @@ export class TileMapRenderer {
 
   getBackgroundLine(line: number) {
     const { SCY: scrollY, SCX: scrollX } = this.lcdMemoryView;
-    const backgroundLine = this.cachedBackgroundLine.fill(0);
+    const backgroundLine = this.cachedBackgroundLine;
 
     const tileLine = Math.floor((line + scrollY) / 8);
     const lineInTile = (line + scrollY) % 8;
 
-    const lineTiles = this.memoryMap.readRange(0x9800 + tileLine * 32, 32);
+    const baseAddress = 0x9800 + tileLine * 32;
 
-    for (let column = 0; column < lineTiles.length; column += 1) {
-      const blockId = lineTiles[column];
+    for (let column = 0; column < 32; column += 1) {
+      const blockId = this.memoryMap.videoRam.readAt(baseAddress + column);
 
       const tile = this.tileDataView.getTile(
         blockId,

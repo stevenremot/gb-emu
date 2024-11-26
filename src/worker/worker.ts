@@ -50,7 +50,7 @@ processorLoop.addObserver({
     postMessage({ type: "runner:loop-started" });
   },
   onStep(delay) {
-    frameRenderer.next(delay);
+    frameRenderer(delay);
   },
   onStopped() {
     postMessage({ type: "runner:loop-stopped" });

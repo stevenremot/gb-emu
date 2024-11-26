@@ -6,16 +6,37 @@ export function makeInstructionHandlerFromList(
   instructions: InstructionHandler[],
   logger: Logger,
 ) {
-  return (args: InstructionExecutionArgs) => {
+  const instructionByOpcode = new Map<number, InstructionHandler>();
+
+  function findInstruction(opcode: number) {
+    if (instructionByOpcode.has(opcode)) {
+      return instructionByOpcode.get(opcode);
+    }
+
+    for (let index = 0; index < instructions.length; index += 1) {
+      const instruction = instructions[index];
+
+      if ((opcode & instruction.mask) === instruction.opcode) {
+        instructionByOpcode.set(opcode, instruction);
+        return instruction;
+      }
+    }
+
+    return null;
+  }
+
+  return function instructionHandler(args: InstructionExecutionArgs) {
     const { opcode } = args;
 
-    for (let instruction of instructions) {
-      if ((opcode & instruction.mask) === instruction.opcode) {
-        return {
-          instruction: { opcode, name: instruction.name },
-          ...instruction.execute(args),
-        };
-      }
+    const instruction = findInstruction(opcode);
+
+    if (instruction) {
+      const result = instruction.execute(args);
+
+      return {
+        instruction: result.instruction ?? { opcode, name: instruction.name },
+        executionTime: result.executionTime,
+      };
     }
 
     logger.warn(`Unknown opcode ${formatOpcode(opcode)}`);

@@ -24,7 +24,8 @@ export class Processor {
       memoryMap: this.memoryMap,
     });
 
-    for (const observer of this.observers) {
+    for (let i = 0; i < this.observers.length; i += 1) {
+      const observer = this.observers[i];
       observer.afterInstruction?.(result);
     }
 

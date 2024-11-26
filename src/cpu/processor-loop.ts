@@ -44,7 +44,8 @@ export class ProcessorLoop {
       while (this.currentDelay >= cycleTime && this.#isRunning) {
         const { executionTime } = this.processor.runOneInstruction();
         const miniDelay = executionTime * cycleTime;
-        for (const observer of this.observers) {
+        for (let i = 0; i < this.observers.length; i += 1) {
+          const observer = this.observers[i];
           observer.onStep?.(miniDelay);
         }
         this.currentDelay -= miniDelay;

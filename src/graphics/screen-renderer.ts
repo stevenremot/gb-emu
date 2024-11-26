@@ -27,14 +27,15 @@ export class ScreenRenderer implements MessageHandler {
   }
 
   /**
-   * Creates a generator that takes the elapsed time in yield
-   * parameter and draws as many lines as the time should allow
+   * Creates a step function that takes the elapsed time parameter and
+   * draws as many lines as the time should allow
    */
-  *renderFrame(): Generator<unknown, unknown, number> {
+  renderFrame() {
     let delay = 0;
     let currentLine = 0;
-    while (true) {
-      delay += yield;
+
+    return (stepDelay: number) => {
+      delay += stepDelay;
 
       while (delay >= timePerFrame) {
         this.renderScanLine(currentLine);
@@ -42,7 +43,7 @@ export class ScreenRenderer implements MessageHandler {
         currentLine = (currentLine + 1) % scanLinePerFrame;
         delay -= timePerScanLine;
       }
-    }
+    };
   }
 
   renderScanLine(line: number) {
