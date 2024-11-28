@@ -48,6 +48,22 @@ export class GbemuDevtoolsRegisters extends HTMLElement {
             <td>a</td>
           </tr>
         </tbody>
+        <thead>
+          <tr>
+            <th colspan="2">Z</th>
+            <th colspan="2">N</th>
+            <th colspan="2">H</th>
+            <th colspan="2">C</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="flag-z" colspan="2"></td>
+            <td id="flag-n" colspan="2"></td>
+            <td id="flag-h" colspan="2"></td>
+            <td id="flag-c" colspan="2"></td>
+          </tr>
+        </tbody>
       </table>
     </div>`;
   }
@@ -64,6 +80,7 @@ export class GbemuDevtoolsRegisters extends HTMLElement {
     SP: number;
     "16bits": [number, number, number, number];
     "8bits": [number, number, number, number, number, number, number, number];
+    flags: { Z: number; N: number; H: number; C: number };
   }) {
     this.querySelector(".pc .value")!.textContent = registers.PC.toString(16);
     this.querySelector(".sp .value")!.textContent = registers.SP.toString(16);
@@ -79,6 +96,11 @@ export class GbemuDevtoolsRegisters extends HTMLElement {
         `tbody tr:last-child td:nth-child(${i + 1})`,
       )!.textContent = registers["8bits"][i].toString(16);
     }
+
+    this.querySelector("#flag-z")!.textContent = registers.flags.Z.toString();
+    this.querySelector("#flag-n")!.textContent = registers.flags.N.toString();
+    this.querySelector("#flag-h")!.textContent = registers.flags.H.toString();
+    this.querySelector("#flag-c")!.textContent = registers.flags.C.toString();
   }
 
   get app() {

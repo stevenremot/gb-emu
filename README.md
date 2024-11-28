@@ -9,19 +9,18 @@ This is a game boy emulator written for self-educational purposes.
 - [X] Memory map
 - [X] CPU and execution loop (not all instructions, just enough to ensure the main loop works)
 - [X] Create some debugging UI
-- [ ] Boot some test roms and make them run all the way without
-      technical errors
+- [ ] Interrupts
 - [ ] Cartridge reading
 - [ ] Screen
   - [x] Debug LCD control
   - [x] Debug LCD registers
   - [x] Debug palette
-  - [ ] Debug tilemap
-  - [ ] Debug bg
+  - [x] Debug tilemap
+  - [x] Debug bg
   - [ ] Debug window
   - [ ] Debug OAM
   - [ ] Debug objects
-  - [ ] Display bg
+  - [x] Display bg
   - [ ] Display window
   - [ ] Display objects
 - [ ] Input

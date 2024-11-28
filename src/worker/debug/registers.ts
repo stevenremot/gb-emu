@@ -6,6 +6,12 @@ export function debugRegisters(registers: Registers) {
     SP: registers.SP,
     "16bits": [] as number[],
     "8bits": [] as number[],
+    flags: {
+      Z: registers.z,
+      N: registers.n,
+      H: registers.h,
+      C: registers.c,
+    },
   };
 
   for (let i = 0; i < 4; i += 1) {
